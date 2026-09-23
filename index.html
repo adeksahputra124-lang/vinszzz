@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Web Steganografi - menyembunyikan dan membaca pesan rahasia di dalam gambar.">
+<title>Steganografi Web</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top left, #12365a 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #102f4d 0%, transparent 35%),
+        #06101c;
+    color: #eef7ff;
+    min-height: 100vh;
+}
+
+header {
+    height: 72px;
+    padding: 0 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(7, 19, 32, .92);
+    border-bottom: 1px solid #20364d;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(12px);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #168de2, #6b5cff);
+    border-radius: 12px;
+    font-size: 21px;
+}
+
+.logo h1 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.logo p {
+    margin: 3px 0 0;
+    color: #8198ad;
+    font-size: 11px;
+}
+
+.local {
+    color: #66e6a8;
+    background: #09281f;
+    border: 1px solid #1c624a;
+    border-radius: 30px;
+    padding: 7px 12px;
+    font-size: 11px;
+}
+
+.container {
+    width: min(1150px, 92%);
+    margin: auto;
+    padding: 55px 0 70px;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.eyebrow {
+    color: #51baff;
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.hero h2 {
+    font-size: clamp(35px, 7vw, 60px);
+    line-height: 1.02;
+    margin: 13px 0;
+}
+
+.hero h2 span {
+    color: #55bcff;
+}
+
+.hero p {
+    max-width: 650px;
+    margin: auto;
+    color: #8da5bb;
+    line-height: 1.7;
+}
+
+.tabs {
+    max-width: 700px;
+    margin: auto auto 25px;
+    padding: 5px;
+    display: flex;
+    background: #0b1b2c;
+    border: 1px solid #203950;
+    border-radius: 14px;
+}
+
+.tab {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: #8198ad;
+    padding: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tab.active {
+    color: white;
+    background: #153a5c;
+}
+
+.panel {
+    display: none;
+}
+
+.panel.active {
+    display: block;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.card,
+.preview {
+    background: rgba(10, 26, 43, .94);
+    border: 1px solid #1c354d;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 17px;
+    box-shadow: 0 15px 45px rgba(0,0,0,.18);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #153e61;
+    color: #60c2ff;
+    font-size: 12px;
+}
+
+.dropzone {
+    min-height: 185px;
+    border: 2px dashed #31526e;
+    border-radius: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-align: center;
+    transition: .2s;
+    padding: 20px;
+}
+
+.dropzone:hover,
+.dropzone.drag {
+    background: #0c2238;
+    border-color: #45b6ff;
+}
+
+.dropzone input {
+    display: none;
+}
+
+.drop-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.dropzone strong {
+    font-size: 14px;
+}
+
+.dropzone small {
+    margin-top: 7px;
+    color: #718aa1;
+}
+
+.file-info {
+    margin-top: 10px;
+    background: #071421;
+    padding: 10px;
+    border-radius: 9px;
+    color: #91a8bd;
+    font-size: 12px;
+    word-break: break-word;
+}
+
+textarea,
+input[type="password"] {
+    width: 100%;
+    border: 1px solid #29445e;
+    background: #06131f;
+    color: white;
+    border-radius: 10px;
+    padding: 13px;
+    outline: none;
+    font: inherit;
+}
+
+textarea {
+    min-height: 145px;
+    resize: vertical;
+}
+
+textarea:focus,
+input:focus {
+    border-color: #43b5ff;
+    box-shadow: 0 0 0 3px rgba(67,181,255,.1);
+}
+
+.counter {
+    display: flex;
+    justify-content: space-between;
+    color: #71889e;
+    font-size: 11px;
+    margin-top: 7px;
+}
+
+.password-box {
+    position: relative;
+}
+
+.password-box input {
+    padding-right: 48px;
+}
+
+.eye {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 0;
+    color: #91a9bf;
+    cursor: pointer;
+}
+
+.hint {
+    color: #71889e;
+    font-size: 11px;
+    display: block;
+    margin-top: 8px;
+}
+
+.primary {
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #168edf, #456cf2);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(22,142,223,.2);
+}
+
+.primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.primary:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.preview {
+    min-height: 500px;
+}
+
+.preview-title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.preview-title span:last-child {
+    color: #71889e;
+}
+
+.canvas-area {
+    min-height: 430px;
+    border: 1px dashed #294159;
+    background: #06121e;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: #60788f;
+    font-size: 12px;
+}
+
+.canvas-area canvas {
+    max-width: 100%;
+    max-height: 430px;
+    display: none;
+}
+
+.canvas-area.has-image canvas {
+    display: block;
+}
+
+.result {
+    padding: 14px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.success {
+    background: #08291f;
+    border: 1px solid #1a654b;
+    color: #7ae7b6;
+}
+
+.error {
+    background: #2d1117;
+    border: 1px solid #71323e;
+    color: #ff9daa;
+}
+
+.secret {
+    white-space: pre-wrap;
+    background: #06131f;
+    color: #dceaf7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    max-height: 280px;
+    overflow: auto;
+}
+
+.download {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 9px 13px;
+    border-radius: 8px;
+    background: #17a76d;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.info {
+    margin-top: 25px;
+    background: #0a1929;
+    border: 1px solid #1c344b;
+    padding: 22px;
+    border-radius: 16px;
+}
+
+.info h3 {
+    margin-top: 0;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.info-item {
+    background: #071522;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.info-item b {
+    color: #53baff;
+}
+
+.info-item h4 {
+    margin: 8px 0 5px;
+}
+
+.info-item p {
+    color: #7f96aa;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.warning {
+    margin-top: 18px;
+    background: #211a0b;
+    border: 1px solid #5e4d22;
+    color: #c5b585;
+    padding: 17px;
+    border-radius: 13px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.warning strong {
+    color: #f2c958;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid #182e44;
+    color: #536b80;
+    font-size: 11px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media(max-width: 800px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .preview {
+        min-height: 350px;
+    }
+
+    .canvas-area {
+        min-height: 280px;
+    }
+
+    .canvas-area canvas {
+        max-height: 280px;
+    }
+
+    header {
+        padding: 0 15px;
+    }
+
+    .local {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <div class="logo-icon">🔐</div>
+        <div>
+            <h1>Steganografi Web</h1>
+            <p>Image Steganography Laboratory</p>
+        </div>
+    </div>
+
+    <div class="local">● 100% Lokal</div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+    <div class="eyebrow">IMAGE STEGANOGRAPHY</div>
+
+    <h2>
+        Sembunyikan pesan rahasia<br>
+        <span>di dalam gambar.</span>
+    </h2>
+
+    <p>
+        Masukkan pesan rahasia ke dalam gambar menggunakan teknik
+        LSB. Semua proses dilakukan langsung di browser tanpa
+        mengirim gambar ke server.
+    </p>
+</section>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('encode', this)">
+        🔒 Sembunyikan Pesan
+    </button>
+
+    <button class="tab" onclick="switchTab('decode', this)">
+        🔓 Baca Pesan
+    </button>
+</div>
+
+
+<!-- ================= ENCODE ================= -->
+
+<section id="encode" class="panel active">
+
+<div class="layout">
+
+<div>
+
+<div class="card">
+
+<div class="step">
+    <span class="step-number">1</span>
+    Pilih gambar
+</div>
+
+<label class="dropzone" id="encodeDrop">
+
+<input
+    type="file"
+    id="encodeFile"
+    accept="image/png,image/bmp,image/webp"
+>
+
+<div class="drop-icon">🖼️</div>
+
+<strong>
+    Klik atau tarik gambar ke sini
+</strong>
+
+<small>
+    PNG, BMP atau WebP · disarankan PNG
+</small>
+
+</label>
+
+<div id="encodeFileInfo" class="file-info hidden"></div>
+
+</div>
+
+
+<div class="card">
+
+<div class="step">
+    <span class="step-number">2</span>
+    Masukkan pesan
+</div>
+
+<textarea
+    id="message"
+    maxlength="200000"
+    placeholder="Tulis pesan rahasia di sini..."
+></textarea>
+
+<div class="counter">
+    <span id="charCount">0 karakter</span>
+    <span id="capacity">Pilih gambar terlebih dahulu</span>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="step">
+    <span class="step-number">3</span>
+    Password (opsional)
+</div>
+
+<div class="password-box">
+
+<input
+    id="encodePassword"
+    type="password"
+    placeholder="Password untuk mengenkripsi pesan"
+>
+
+<button
+    class="eye"
+    onclick="togglePassword('encodePassword')"
+    type="button"
+>
+    👁️
+</button>
+
+</div>
+
+<span class="hint">
+Jika password diisi, pesan akan dienkripsi menggunakan AES-GCM.
+</span>
+
+</div>
+
+
+<button
+    id="encodeButton"
+    class="primary"
+    disabled
+    onclick="encodeMessage()"
+>
+    🔐 Sembunyikan Pesan
+</button>
+
+<div id="encodeResult" class="result hidden"></div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-title">
+    <span>Preview</span>
+    <span id="encodeSize">Belum ada gambar</span>
+</div>
+
+<div
+    class="canvas-area"
+    id="encodeCanvasArea"
+>
+    <span id="encodePlaceholder">
+        Preview gambar akan muncul di sini
+    </span>
+
+    <canvas id="encodeCanvas"></canvas>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= DECODE ================= -->
+
+<section id="decode" class="panel">
+
+<div class="layout">
+
+<div>
+
+<div class="card">
+
+<div class="step">
+    <span class="step-number">1</span>
+    Pilih gambar steganografi
+</div>
+
+<label class="dropzone" id="decodeDrop">
+
+<input
+    type="file"
+    id="decodeFile"
+    accept="image/png,image/bmp,image/webp"
+>
+
+<div class="drop-icon">🔎</div>
+
+<strong>
+    Klik atau tarik gambar ke sini
+</strong>
+
+<small>
+    Pilih gambar yang sudah berisi pesan
+</small>
+
+</label>
+
+<div id="decodeFileInfo" class="file-info hidden"></div>
+
+</div>
+
+
+<div class="card">
+
+<div class="step">
+    <span class="step-number">2</span>
+    Password
+</div>
+
+<div class="password-box">
+
+<input
+    id="decodePassword"
+    type="password"
+    placeholder="Masukkan password jika digunakan"
+>
+
+<button
+    class="eye"
+    onclick="togglePassword('decodePassword')"
+    type="button"
+>
+    👁️
+</button>
+
+</div>
+
+</div>
+
+
+<button
+    id="decodeButton"
+    class="primary"
+    disabled
+    onclick="decodeMessage()"
+>
+    🔓 Baca Pesan
+</button>
+
+<div id="decodeResult" class="result hidden"></div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-title">
+    <span>Preview</span>
+    <span id="decodeSize">Belum ada gambar</span>
+</div>
+
+<div
+    class="canvas-area"
+    id="decodeCanvasArea"
+>
+    <span id="decodePlaceholder">
+        Preview gambar akan muncul di sini
+    </span>
+
+    <canvas id="decodeCanvas"></canvas>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section class="info">
+
+<h3>Bagaimana cara kerjanya?</h3>
+
+<div class="info-grid">
+
+<div class="info-item">
+    <b>01</b>
+    <h4>Pilih gambar</h4>
+    <p>
+        Gunakan gambar PNG. Format lossless lebih cocok
+        untuk menyimpan data tersembunyi.
+    </p>
+</div>
+
+<div class="info-item">
+    <b>02</b>
+    <h4>Sisipkan pesan</h4>
+    <p>
+        Pesan dikonversi menjadi bit dan disimpan
+        pada bit warna piksel gambar.
+    </p>
+</div>
+
+<div class="info-item">
+    <b>03</b>
+    <h4>Baca kembali</h4>
+    <p>
+        Gunakan gambar hasil untuk mengambil kembali
+        pesan menggunakan menu Baca Pesan.
+    </p>
+</div>
+
+</div>
+
+</section>
+
+
+<div class="warning">
+
+<strong>⚠️ Catatan keamanan</strong>
+
+<br>
+
+Project ini dibuat untuk pembelajaran steganografi.
+Steganografi menyembunyikan keberadaan pesan, tetapi
+bukan jaminan keamanan mutlak.
+
+Gunakan PNG dan jangan mengedit atau mengompres ulang
+gambar hasil karena perubahan piksel dapat merusak pesan.
+
+</div>
+
+</main>
+
+
+<footer>
+    Steganografi Web · Client-side · Tidak ada upload ke server
+</footer>
+
+
+<script>
+
+"use strict";
+
+
+/* =====================================================
+   KONSTANTA
+===================================================== */
+
+const MAGIC = new Uint8Array([
+    0x53,
+    0x54,
+    0x47,
+    0x31
+]);
+
+const FLAG_PLAIN = 0;
+const FLAG_ENCRYPTED = 1;
+
+
+/* =====================================================
+   VARIABEL
+===================================================== */
+
+let encodeImageLoaded = false;
+let decodeImageLoaded = false;
+
+
+/* =====================================================
+   TAB
+===================================================== */
+
+function switchTab(tab, button) {
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(btn => btn.classList.remove("active"));
+
+    document
+        .querySelectorAll(".panel")
+        .forEach(panel => panel.classList.remove("active"));
+
+    button.classList.add("active");
+
+    document
+        .getElementById(tab)
+        .classList.add("active");
+}
+
+
+/* =====================================================
+   PASSWORD
+===================================================== */
+
+function togglePassword(id) {
+
+    const input = document.getElementById(id);
+
+    input.type =
+        input.type === "password"
+        ? "text"
+        : "password";
+}
+
+
+/* =====================================================
+   FORMAT UKURAN
+===================================================== */
+
+function formatBytes(bytes) {
+
+    if (bytes === 0)
+        return "0 B";
+
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+    const index =
+        Math.floor(
+            Math.log(bytes) / Math.log(1024)
+        );
+
+    return (
+        (bytes / Math.pow(1024, index))
+        .toFixed(index === 0 ? 0 : 1)
+        + " "
+        + units[index]
+    );
+}
+
+
+/* =====================================================
+   DRAG & DROP
+===================================================== */
+
+function setupDropzone(dropId, inputId) {
+
+    const drop = document.getElementById(dropId);
+    const input = document.getElementById(inputId);
+
+    ["dragenter", "dragover"].forEach(event => {
+
+        drop.addEventListener(event, e => {
+
+            e.preventDefault();
+
+            drop.classList.add("drag");
+
+        });
+
+    });
+
+
+    ["dragleave", "drop"].forEach(event => {
+
+        drop.addEventListener(event, e => {
+
+            e.preventDefault();
+
+            drop.classList.remove("drag");
+
+        });
+
+    });
+
+
+    drop.addEventListener("drop", e => {
+
+        const file = e.dataTransfer.files[0];
+
+        if (!file)
+            return;
+
+        const dataTransfer = new DataTransfer();
+
+        dataTransfer.items.add(file);
+
+        input.files = dataTransfer.files;
+
+        input.dispatchEvent(
+            new Event("change")
+        );
+
+    });
+
+}
+
+
+setupDropzone(
+    "encodeDrop",
+    "encodeFile"
+);
+
+setupDropzone(
+    "decodeDrop",
+    "decodeFile"
+);
+
+
+/* =====================================================
+   LOAD IMAGE
+===================================================== */
+
+function loadImage(
+    file,
+    canvas,
+    area,
+    sizeElement,
+    placeholder
+) {
+
+    return new Promise((resolve, reject) => {
+
+        const image = new Image();
+
+        image.onload = () => {
+
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+
+            const ctx =
+                canvas.getContext("2d", {
+                    willReadFrequently: true
+                });
+
+            ctx.drawImage(
+                image,
+                0,
+                0
+            );
+
+            area.classList.add("has-image");
+
+            placeholder.style.display =
+                "none";
+
+            sizeElement.textContent =
+                image.naturalWidth
+                + " × "
+                + image.naturalHeight;
+
+            resolve(image);
+
+        };
+
+
+        image.onerror = () => {
+
+            reject(
+                new Error(
+                    "Gambar tidak dapat dibaca."
+                )
+            );
+
+        };
+
+
+        image.src =
+            URL.createObjectURL(file);
+
+    });
+
+}
+
+
+/* =====================================================
+   ENCODE FILE
+===================================================== */
+
+document
+.getElementById("encodeFile")
+.addEventListener("change", async function() {
+
+    const file = this.files[0];
+
+    if (!file)
+        return;
+
+    document
+        .getElementById("encodeFileInfo")
+        .textContent =
+        file.name
+        + " · "
+        + formatBytes(file.size);
+
+    document
+        .getElementById("encodeFileInfo")
+        .classList.remove("hidden");
+
+
+    try {
+
+        await loadImage(
+            file,
+            document.getElementById("encodeCanvas"),
+            document.getElementById("encodeCanvasArea"),
+            document.getElementById("encodeSize"),
+            document.getElementById("encodePlaceholder")
+        );
+
+        encodeImageLoaded = true;
+
+        document
+            .getElementById("encodeButton")
+            .disabled = false;
+
+        updateCapacity();
+
+    } catch(error) {
+
+        showResult(
+            "encodeResult",
+            error.message,
+            false
+        );
+
+    }
+
+});
+
+
+/* =====================================================
+   DECODE FILE
+===================================================== */
+
+document
+.getElementById("decodeFile")
+.addEventListener("change", async function() {
+
+    const file = this.files[0];
+
+    if (!file)
+        return;
+
+    document
+        .getElementById("decodeFileInfo")
+        .textContent =
+        file.name
+        + " · "
+        + formatBytes(file.size);
+
+    document
+        .getElementById("decodeFileInfo")
+        .classList.remove("hidden");
+
+
+    try {
+
+        await loadImage(
+            file,
+            document.getElementById("decodeCanvas"),
+            document.getElementById("decodeCanvasArea"),
+            document.getElementById("decodeSize"),
+            document.getElementById("decodePlaceholder")
+        );
+
+        decodeImageLoaded = true;
+
+        document
+            .getElementById("decodeButton")
+            .disabled = false;
+
+    } catch(error) {
+
+        showResult(
+            "decodeResult",
+            error.message,
+            false
+        );
+
+    }
+
+});
+
+
+/* =====================================================
+   KAPASITAS
+===================================================== */
+
+function getCapacity(canvas) {
+
+    const totalBits =
+        canvas.width *
+        canvas.height *
+        3;
+
+    const totalBytes =
+        Math.floor(totalBits / 8);
+
+    return Math.max(
+        0,
+        totalBytes - 9
+    );
+
+}
+
+
+function updateCapacity() {
+
+    if (!encodeImageLoaded) {
+
+        document
+            .getElementById("capacity")
+            .textContent =
+            "Pilih gambar terlebih dahulu";
+
+        return;
+    }
+
+
+    const canvas =
+        document.getElementById(
+            "encodeCanvas"
+        );
+
+    const capacity =
+        getCapacity(canvas);
+
+    document
+        .getElementById("capacity")
+        .textContent =
+        "Kapasitas ± "
+        + formatBytes(capacity);
+
+}
+
+
+/* =====================================================
+   COUNTER
+===================================================== */
+
+document
+.getElementById("message")
+.addEventListener("input", function() {
+
+    document
+        .getElementById("charCount")
+        .textContent =
+        this.value.length.toLocaleString("id-ID")
+        + " karakter";
+
+    updateCapacity();
+
+});
+
+
+/* =====================================================
+   UINT32
+===================================================== */
+
+function numberToBytes(number) {
+
+    return new Uint8Array([
+        (number >>> 24) & 255,
+        (number >>> 16) & 255,
+        (number >>> 8) & 255,
+        number & 255
+    ]);
+
+}
+
+
+function bytesToNumber(bytes, offset) {
+
+    return (
+        ((bytes[offset] * 2 ** 24) >>> 0)
+        +
+        (bytes[offset + 1] << 16)
+        +
+        (bytes[offset + 2] << 8)
+        +
+        bytes[offset + 3]
+    );
+
+}
+
+
+/* =====================================================
+   BYTES -> BITS
+===================================================== */
+
+function bytesToBits(bytes) {
+
+    const bits =
+        new Uint8Array(
+            bytes.length * 8
+        );
+
+    for (
+        let i = 0;
+        i < bytes.length;
+        i++
+    ) {
+
+        for (
+            let b = 0;
+            b < 8;
+            b++
+        ) {
+
+            bits[i * 8 + b] =
+                (bytes[i] >> (7 - b)) & 1;
+
+        }
+
+    }
+
+    return bits;
+
+}
+
+
+/* =====================================================
+   BITS -> BYTES
+===================================================== */
+
+function bitsToBytes(bits) {
+
+    const bytes =
+        new Uint8Array(
+            Math.floor(bits.length / 8)
+        );
+
+    for (
+        let i = 0;
+        i < bytes.length;
+        i++
+    ) {
+
+        let value = 0;
+
+        for (
+            let b = 0;
+            b < 8;
+            b++
+        ) {
+
+            value =
+                (value << 1)
+                |
+                bits[i * 8 + b];
+
+        }
+
+        bytes[i] = value;
+
+    }
+
+    return bytes;
+
+}
+
+
+/* =====================================================
+   ENKRIPSI AES-GCM
+===================================================== */
+
+async function deriveKey(
+    password,
+    salt
+) {
+
+    const baseKey =
+        await crypto.subtle.importKey(
+            "raw",
+            new TextEncoder().encode(password),
+            "PBKDF2",
+            false,
+            ["deriveKey"]
+        );
+
+
+    return crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 100000,
+            hash: "SHA-256"
+        },
+        baseKey,
+        {
+            name: "AES-GCM",
+            length: 256
+        },
+        false,
+        [
+            "encrypt",
+            "decrypt"
+        ]
+    );
+
+}
+
+
+async function encryptText(
+    text,
+    password
+) {
+
+    const salt =
+        crypto.getRandomValues(
+            new Uint8Array(16)
+        );
+
+    const iv =
+        crypto.getRandomValues(
+            new Uint8Array(12)
+        );
+
+
+    const key =
+        await deriveKey(
+            password,
+            salt
+        );
+
+
+    const encrypted =
+        new Uint8Array(
+            await crypto.subtle.encrypt(
+                {
+                    name: "AES-GCM",
+                    iv: iv
+                },
+                key,
+                new TextEncoder().encode(text)
+            )
+        );
+
+
+    const result =
+        new Uint8Array(
+            16 + 12 + encrypted.length
+        );
+
+
+    result.set(salt, 0);
+    result.set(iv, 16);
+    result.set(encrypted, 28);
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   DEKRIPSI AES-GCM
+===================================================== */
+
+async function decryptText(
+    data,
+    password
+) {
+
+    if (data.length < 29) {
+
+        throw new Error(
+            "Data terenkripsi tidak lengkap."
+        );
+
+    }
+
+
+    const salt =
+        data.slice(0, 16);
+
+    const iv =
+        data.slice(16, 28);
+
+    const encrypted =
+        data.slice(28);
+
+
+    const key =
+        await deriveKey(
+            password,
+            salt
+        );
+
+
+    const decrypted =
+        await crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv: iv
+            },
+            key,
+            encrypted
+        );
+
+
+    return new TextDecoder().decode(
+        decrypted
+    );
+
+}
+
+
+/* =====================================================
+   BUAT PAYLOAD
+===================================================== */
+
+async function createPayload(
+    message,
+    password
+) {
+
+    let data;
+    let flag;
+
+
+    if (password) {
+
+        data =
+            await encryptText(
+                message,
+                password
+            );
+
+        flag =
+            FLAG_ENCRYPTED;
+
+    } else {
+
+        data =
+            new TextEncoder().encode(
+                message
+            );
+
+        flag =
+            FLAG_PLAIN;
+
+    }
+
+
+    const header =
+        new Uint8Array(9);
+
+
+    header.set(
+        MAGIC,
+        0
+    );
+
+    header[4] =
+        flag;
+
+
+    header.set(
+        numberToBytes(data.length),
+        5
+    );
+
+
+    const payload =
+        new Uint8Array(
+            header.length +
+            data.length
+        );
+
+
+    payload.set(
+        header,
+        0
+    );
+
+    payload.set(
+        data,
+        header.length
+    );
+
+
+    return payload;
+
+}
+
+
+/* =====================================================
+   TULIS BIT KE GAMBAR
+===================================================== */
+
+function writeLSB(
+    canvas,
+    payload
+) {
+
+    const ctx =
+        canvas.getContext(
+            "2d",
+            {
+                willReadFrequently: true
+            }
+        );
+
+
+    const imageData =
+        ctx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+    const bits =
+        bytesToBits(payload);
+
+
+    const available =
+        canvas.width *
+        canvas.height *
+        3;
+
+
+    if (bits.length > available) {
+
+        throw new Error(
+            "Pesan terlalu besar untuk gambar ini. Gunakan gambar dengan resolusi lebih besar."
+        );
+
+    }
+
+
+    let bitIndex = 0;
+
+
+    for (
+        let i = 0;
+        i < imageData.data.length &&
+        bitIndex < bits.length;
+        i += 4
+    ) {
+
+        for (
+            let channel = 0;
+            channel < 3 &&
+            bitIndex < bits.length;
+            channel++
+        ) {
+
+            imageData.data[i + channel] =
+                (
+                    imageData.data[i + channel]
+                    & 254
+                )
+                |
+                bits[bitIndex++];
+
+        }
+
+    }
+
+
+    ctx.putImageData(
+        imageData,
+        0,
+        0
+    );
+
+}
+
+
+/* =====================================================
+   BACA BIT
+===================================================== */
+
+function readLSB(
+    canvas,
+    byteCount
+) {
+
+    const ctx =
+        canvas.getContext(
+            "2d",
+            {
+                willReadFrequently: true
+            }
+        );
+
+
+    const imageData =
+        ctx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+    const bits = [];
+
+
+    const needed =
+        byteCount * 8;
+
+
+    for (
+        let i = 0;
+        i < imageData.data.length &&
+        bits.length < needed;
+        i += 4
+    ) {
+
+        for (
+            let channel = 0;
+            channel < 3 &&
+            bits.length < needed;
+            channel++
+        ) {
+
+            bits.push(
+                imageData.data[i + channel] & 1
+            );
+
+        }
+
+    }
+
+
+    if (bits.length < needed) {
+
+        throw new Error(
+            "Data gambar tidak cukup."
+        );
+
+    }
+
+
+    return bitsToBytes(
+        new Uint8Array(bits)
+    );
+
+}
+
+
+/* =====================================================
+   ENCODE
+===================================================== */
+
+async function encodeMessage() {
+
+    const result =
+        document.getElementById(
+            "encodeResult"
+        );
+
+
+    const message =
+        document
+            .getElementById("message")
+            .value;
+
+
+    const password =
+        document
+            .getElementById("encodePassword")
+            .value;
+
+
+    const canvas =
+        document.getElementById(
+            "encodeCanvas"
+        );
+
+
+    if (!message) {
+
+        showResult(
+            "encodeResult",
+            "Masukkan pesan terlebih dahulu.",
+            false
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const button =
+            document.getElementById(
+                "encodeButton"
+            );
+
+        button.disabled = true;
+
+        button.textContent =
+            "⏳ Memproses...";
+
+
+        const payload =
+            await createPayload(
+                message,
+                password
+            );
+
+
+        writeLSB(
+            canvas,
+            payload
+        );
+
+
+        const blob =
+            await new Promise(resolve => {
+
+                canvas.toBlob(
+                    resolve,
+                    "image/png"
+                );
+
+            });
+
+
+        if (!blob) {
+
+            throw new Error(
+                "Gagal membuat gambar hasil."
+            );
+
+        }
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        showResult(
+            "encodeResult",
+
+            `
+            ✅ Pesan berhasil disisipkan!
+
+            <br>
+
+            Ukuran data:
+            ${formatBytes(payload.length)}
+
+            <br>
+
+            Enkripsi:
+            ${password ? "AES-GCM" : "Tidak digunakan"}
+
+            <br>
+
+            <a
+                class="download"
+                href="${url}"
+                download="steganografi-${Date.now()}.png"
+            >
+                ⬇ Download Gambar Hasil
+            </a>
+            `,
+
+            true
+        );
+
+
+    } catch(error) {
+
+        showResult(
+            "encodeResult",
+            error.message,
+            false
+        );
+
+    } finally {
+
+        const button =
+            document.getElementById(
+                "encodeButton"
+            );
+
+        button.disabled = false;
+
+        button.textContent =
+            "🔐 Sembunyikan Pesan";
+
+    }
+
+}
+
+
+/* =====================================================
+   DECODE
+===================================================== */
+
+async function decodeMessage() {
+
+    try {
+
+        const button =
+            document.getElementById(
+                "decodeButton"
+            );
+
+
+        const canvas =
+            document.getElementById(
+                "decodeCanvas"
+            );
+
+
+        const password =
+            document
+                .getElementById(
+                    "decodePassword"
+                )
+                .value;
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "⏳ Membaca...";
+
+
+        /*
+         * Header:
+         *
+         * 4 byte MAGIC
+         * 1 byte FLAG
+         * 4 byte LENGTH
+         */
+
+        const header =
+            readLSB(
+                canvas,
+                9
+            );
+
+
+        for (
+            let i = 0;
+            i < 4;
+            i++
+        ) {
+
+            if (
+                header[i] !== MAGIC[i]
+            ) {
+
+                throw new Error(
+                    "Tidak ditemukan pesan steganografi yang kompatibel pada gambar ini."
+                );
+
+            }
+
+        }
+
+
+        const flag =
+            header[4];
+
+
+        const length =
+            bytesToNumber(
+                header,
+                5
+            );
+
+
+        const capacity =
+            getCapacity(canvas);
+
+
+        if (
+            length <= 0 ||
+            length > capacity
+        ) {
+
+            throw new Error(
+                "Data pesan tidak valid."
+            );
+
+        }
+
+
+        const complete =
+            readLSB(
+                canvas,
+                9 + length
+            );
+
+
+        const data =
+            complete.slice(
+                9,
+                9 + length
+            );
+
+
+        let message;
+
+
+        if (
+            flag === FLAG_ENCRYPTED
+        ) {
+
+            if (!password) {
+
+                throw new Error(
+                    "Pesan ini menggunakan password. Masukkan password terlebih dahulu."
+                );
+
+            }
+
+
+            try {
+
+                message =
+                    await decryptText(
+                        data,
+                        password
+                    );
+
+            } catch {
+
+                throw new Error(
+                    "Password salah atau data pesan rusak."
+                );
+
+            }
+
+        } else if (
+            flag === FLAG_PLAIN
+        ) {
+
+            message =
+                new TextDecoder().decode(
+                    data
+                );
+
+        } else {
+
+            throw new Error(
+                "Format pesan tidak dikenali."
+            );
+
+        }
+
+
+        showResult(
+            "decodeResult",
+
+            `
+            ✅ Pesan berhasil ditemukan!
+
+            <br>
+
+            Jumlah karakter:
+            ${message.length.toLocaleString("id-ID")}
+
+            <div class="secret"></div>
+            `,
+
+            true
+        );
+
+
+        document
+            .querySelector(
+                "#decodeResult .secret"
+            )
+            .textContent =
+            message;
+
+
+    } catch(error) {
+
+        showResult(
+            "decodeResult",
+            error.message,
+            false
+        );
+
+    } finally {
+
+        const button =
+            document.getElementById(
+                "decodeButton"
+            );
+
+        button.disabled = false;
+
+        button.textContent =
+            "🔓 Baca Pesan";
+
+    }
+
+}
+
+
+/* =====================================================
+   HASIL
+===================================================== */
+
+function showResult(
+    id,
+    message,
+    success
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    element.className =
+        "result "
+        +
+        (success
+            ? "success"
+            : "error");
+
+
+    element.innerHTML =
+        message;
+
+
+    element.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* =====================================================
+   INFO SAAT MEMBUKA FILE
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        updateCapacity();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
